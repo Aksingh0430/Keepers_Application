@@ -15,7 +15,7 @@ const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: {
-        rejectUnauthorized: false, // Needed for Render's managed PostgreSQL
+        rejectUnauthorized: false, // Required for Render's managed PostgreSQL
       },
     })
   : new Pool({
@@ -38,21 +38,62 @@ const createTable = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    console.log('Notes table created successfully');
+    console.log('✅ Notes table ready');
   } catch (err) {
-    console.error('Error creating table:', err);
+    console.error('❌ Error creating table:', err);
   }
 };
 
 createTable();
 
-// Routes...
+// Routes
+app.get('/', (req, res) => {
+  res.send('📌 Keeper App Backend is running. Use /api/notes to fetch notes.');
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
+// Get all notes
+app.get('/api/notes', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM notes ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database query failed' });
+  }
+});
+
+// Add a note
+app.post('/api/notes', async (req, res) => {
+  const { title, content } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO notes (title, content) VALUES ($1, $2) RETURNING *',
+      [title, content]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add note' });
+  }
+});
+
+// Delete a note
+app.delete('/api/notes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM notes WHERE id = $1', [id]);
+    res.json({ message: 'Note deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete note' });
+  }
+});
+
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`🚀 Server running on port ${port}`);
 });
