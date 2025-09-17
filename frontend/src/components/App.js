@@ -4,7 +4,7 @@ import Footer from "./Footer";
 import Note from "./Note";
 import CreateArea from "./CreateArea";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function App() {
   const [notes, setNotes] = useState([]);
@@ -19,7 +19,7 @@ function App() {
   const fetchNotes = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/notes`);
+      const response = await fetch(`${API_BASE_URL}/api/notes`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch notes');
@@ -38,7 +38,7 @@ function App() {
 
   const addNote = async (newNote) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/notes`, {
+      const response = await fetch(`${API_BASE_URL}/api/notes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ function App() {
 
   const deleteNote = async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
         method: 'DELETE',
       });
 
