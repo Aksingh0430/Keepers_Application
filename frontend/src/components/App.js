@@ -1,12 +1,9 @@
-// frontend/src/components/App.js
-
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import Note from "./Note";
 import CreateArea from "./CreateArea";
 
-// New API_BASE_URL declaration to force a new Vercel build
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function App() {
